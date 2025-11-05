@@ -4,42 +4,47 @@ import 'package:go_router/go_router.dart';
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
 
-  void _safePopOrGoSignup(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/signup');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Account'),
+        title: Text('Account', style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
+        backgroundColor: theme.colorScheme.primaryContainer,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => _safePopOrGoSignup(context),
+          onPressed: () => context.pop(),
+          color: theme.colorScheme.onPrimaryContainer,
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ListTile(
-              title: Text('Username'),
-              subtitle: Text('MusicListener'),
+            Text('Account Details', style: theme.textTheme.headlineSmall),
+            const SizedBox(height: 16),
+            ListTile(
+              title: Text('Username', style: theme.textTheme.titleMedium),
+              subtitle: Text('MusicListener', style: theme.textTheme.bodyLarge),
             ),
-            const ListTile(
-              title: Text('Email Address'),
-              subtitle: Text('example@gmail.com'),
+            ListTile(
+              title: Text('Email Address', style: theme.textTheme.titleMedium),
+              subtitle: Text('example@gmail.com', style: theme.textTheme.bodyLarge),
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {
-                context.push('/home?premium=true');
-              },
-              child: const Text('Subscribe to Freq+'),
+            const SizedBox(height: 24),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  context.push('/home?premium=true');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                ),
+                child: const Text('Subscribe to Freq+'),
+              ),
             ),
           ],
         ),

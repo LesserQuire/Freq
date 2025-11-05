@@ -4,14 +4,6 @@ import 'package:go_router/go_router.dart';
 class AddUrlPage extends StatelessWidget {
   const AddUrlPage({super.key});
 
-  void _safePopOrGoSignup(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/signup');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,13 +11,22 @@ class AddUrlPage extends StatelessWidget {
         title: const Text('Add URL'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => _safePopOrGoSignup(context),
+          onPressed: () => context.pop(),
         ),
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: TextField(
-          decoration: InputDecoration(labelText: 'Enter URL'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const TextField(
+              decoration: InputDecoration(labelText: 'Enter URL'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => context.go('/home'),
+              child: const Text('Add'),
+            ),
+          ],
         ),
       ),
     );
