@@ -11,6 +11,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+   bool gpsEnabled = true;
   @override
   Widget build(BuildContext context) {
     final results = List.generate(15, (i) => 'Search Result ${i + 1}');
@@ -34,6 +35,14 @@ class _SearchPageState extends State<SearchPage> {
               decoration: InputDecoration(
                 hintText: 'Search for a station...',
                 prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: Icon(gpsEnabled ? Icons.gps_fixed : Icons.gps_off),
+                  onPressed: () {
+                    setState(() {
+                      gpsEnabled = !gpsEnabled;
+                    });
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,

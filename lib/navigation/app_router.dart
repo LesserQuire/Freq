@@ -10,67 +10,63 @@ import '../pages/chat.dart';
 import '../pages/signup.dart';
 import '../pages/playbar.dart';
 import '../pages/player_page.dart';
-import '../utils/no_transition_page.dart';
+import '../pages/splash_page.dart';
 
 final router = GoRouter(
-  initialLocation: '/signup',
+  initialLocation: '/splash',
   routes: [
-    GoRoute(
-      path: '/player',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        child: const PlayerPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return const FadeUpwardsPageTransitionsBuilder().buildTransitions(
-            null,
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-          );
-        },
-      ),
-    ),
-    GoRoute(
-      path: '/signup',
-      pageBuilder: (context, state) => AppNoTransitionPage(
-        child: const SignupPage(),
-        key: state.pageKey,
-      ),
-    ),
+    GoRoute(path: '/splash', pageBuilder: (c, s) => _crossfadePage(const SplashPage(), s)),
+    GoRoute(path: '/signup', pageBuilder: (c, s) => _crossfadePage(const SignupPage(), s)),
+    GoRoute(path: '/player', pageBuilder: (c, s) => _crossfadePage(const PlayerPage(), s)),
     ShellRoute(
-      builder: (context, state, child) {
-        return Scaffold(
-          body: child,
-          bottomNavigationBar: const Playbar(),
-        );
-      },
+      builder: (context, state, child) => Scaffold(
+        body: child,
+        bottomNavigationBar: const Playbar(),
+      ),
       routes: [
         GoRoute(
           path: '/home',
-          builder: (context, state) {
-            final isPremium = state.uri.queryParameters['premium'] == 'true';
-            return HomePage(isPremium: isPremium);
+          pageBuilder: (c, s) =>
+              _crossfadePage(HomePage(isPremium: s.uri.queryParameters['premium'] == 'true'), s),
+        ),
+        GoRoute(path: '/account', pageBuilder: (c, s) => _crossfadePage(const AccountPage(), s)),
+        GoRoute(path: '/search', pageBuilder: (c, s) => _crossfadePage(const SearchPage(), s)),
+        GoRoute(path: '/add-url', pageBuilder: (c, s) => _crossfadePage(const AddUrlPage(), s)),
+        GoRoute(path: '/search-details', pageBuilder: (c, s) => _crossfadePage(const SearchDetailsPage(), s)),
+        GoRoute(
+          path: '/details',
+          pageBuilder: (c, s) {
+            final extra = s.extra is Map<String, dynamic> ? s.extra as Map<String, dynamic> : null;
+            return _crossfadePage(DetailsPage(extra: extra), s);
           },
         ),
-        GoRoute(path: '/account', builder: (context, state) => const AccountPage()),
-        GoRoute(path: '/search', builder: (context, state) => const SearchPage()),
-        GoRoute(path: '/add-url', builder: (context, state) => const AddUrlPage()),
-        GoRoute(
-            path: '/search-details',
-            builder: (context, state) => const SearchDetailsPage()),
-        GoRoute(
-            path: '/details',
-            builder: (context, state) {
-              if (state.extra is Map<String, dynamic>) {
-                return DetailsPage(
-                  extra: state.extra as Map<String, dynamic>?,
-                );
-              } else {
-                return const DetailsPage(extra: null);
-              }
-            }),
-        GoRoute(path: '/chat', builder: (context, state) => const ChatPage()),
+        GoRoute(path: '/chat', pageBuilder: (c, s) => _crossfadePage(const ChatPage(), s)),
       ],
     ),
   ],
 );
+
+CustomTransitionPage _crossfadePage(Widget child, GoRouterState state) {
+  return CustomTransitionPage(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final fadeIn = FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+
+      final fadeOut = FadeTransition(
+        opacity: Tween<double>(begin: 1.0, end: 0.0).animate(secondaryAnimation),
+        child: child,
+      );
+
+      return Stack(
+        children: [
+          fadeOut,
+          fadeIn,
+        ],
+      );
+    },
+  );
+}
