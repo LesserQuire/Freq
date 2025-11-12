@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/playbar_bloc.dart';
+import '../bloc/saved_radios_bloc.dart';
+import '../models/station.dart';
 
 class HomePage extends StatefulWidget {
   final bool isPremium;
@@ -15,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final sponsored = List.generate(3, (i) => 'Sponsored ${i + 1}');
-    final regular = List.generate(15, (i) => 'Station ${i + 1}');
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -36,68 +37,73 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: BlocBuilder<PlaybarBloc, PlaybarState>(
-        builder: (context, state) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (!widget.isPremium) ...[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text('Sponsored', style: theme.textTheme.titleLarge),
-                ),
-                ...List.generate(sponsored.length, (i) {
-                  final station = sponsored[i];
-                  final isPlaying = state is PlaybarPlaying && state.station == station;
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage('https://picsum.photos/seed/${station.hashCode}/100'),
+        builder: (context, playbarState) {
+          return BlocBuilder<SavedRadiosBloc, SavedRadiosState>(
+            builder: (context, savedRadiosState) {
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (!widget.isPremium) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text('Sponsored', style: theme.textTheme.titleLarge),
                     ),
-                    title: Text(station, style: theme.textTheme.titleMedium),
-                    selected: isPlaying,
-                    selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.info_outline),
-                      onPressed: () => context.push('/details', extra: {'from': 'home', 'sponsored': true}),
-                    ),
-                    onTap: () {
-                      if (isPlaying) {
-                        context.read<PlaybarBloc>().add(Pause());
-                      } else {
-                        context.read<PlaybarBloc>().add(Play(station));
-                      }
-                    },
-                  );
-                }),
-                const SizedBox(height: 20),
-              ],
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Text('My Radios', style: theme.textTheme.titleLarge),
-              ),
-              ...List.generate(regular.length, (i) {
-                final station = regular[i];
-                final isPlaying = state is PlaybarPlaying && state.station == station;
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage('https://picsum.photos/seed/${station.hashCode}/100'),
+                    ...List.generate(sponsored.length, (i) {
+                      final stationName = sponsored[i];
+                      final isPlaying = playbarState is PlaybarPlaying && playbarState.station.name == stationName;
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage('https://picsum.photos/seed/${stationName.hashCode}/100'),
+                        ),
+                        title: Text(stationName, style: theme.textTheme.titleMedium),
+                        selected: isPlaying,
+                        selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                        onTap: () {
+                          // Placeholder: Cannot play sponsored stations.
+                          if (isPlaying) {
+                            context.read<PlaybarBloc>().add(Pause());
+                          }
+                        },
+                      );
+                    }),
+                    const SizedBox(height: 20),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text('My Radios', style: theme.textTheme.titleLarge),
                   ),
-                  title: Text(station, style: theme.textTheme.titleMedium),
-                  selected: isPlaying,
-                  selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.info_outline),
-                    onPressed: () => context.push('/details', extra: {'from': 'home'}),
-                  ),
-                  onTap: () {
-                    if (isPlaying) {
-                      context.read<PlaybarBloc>().add(Pause());
-                    } else {
-                      context.read<PlaybarBloc>().add(Play(station));
-                    }
-                  },
-                );
-              }),
-            ],
+                  if (savedRadiosState.stations.isEmpty)
+                    const Center(child: Text('No saved radios yet.'))
+                  else
+                    ...savedRadiosState.stations.map((station) {
+                      final isPlaying = playbarState is PlaybarPlaying && playbarState.station == station;
+                      return ListTile(
+                        key: Key(station.stationuuid),
+                        leading: CircleAvatar(
+                          backgroundImage: station.favicon.isNotEmpty
+                              ? NetworkImage(station.favicon)
+                              : null,
+                          child: station.favicon.isEmpty ? const Icon(Icons.radio) : null,
+                        ),
+                        title: Text(station.name, style: theme.textTheme.titleMedium),
+                        selected: isPlaying,
+                        selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.info_outline),
+                          onPressed: () => context.push('/station-details', extra: station),
+                        ),
+                        onTap: () {
+                          if (isPlaying) {
+                            context.read<PlaybarBloc>().add(Pause());
+                          } else {
+                            context.read<PlaybarBloc>().add(Play(station));
+                          }
+                        },
+                      );
+                    }),
+                ],
+              );
+            },
           );
         },
       ),

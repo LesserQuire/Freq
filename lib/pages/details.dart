@@ -2,56 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/playbar_bloc.dart';
+import '../bloc/saved_radios_bloc.dart';
+import '../models/station.dart';
+import '../services/radio_service.dart';
 
-class DetailsPage extends StatelessWidget {
-  final Map<String, dynamic>? extra;
-  const DetailsPage({super.key, this.extra});
+class DetailsPage extends StatefulWidget {
+  final Station station;
+  const DetailsPage({super.key, required this.station});
+
+  @override
+  State<DetailsPage> createState() => _DetailsPageState();
+}
+
+class _DetailsPageState extends State<DetailsPage> {
+  final RadioService _radioService = RadioService();
+  String? _description;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDescription();
+  }
+
+  Future<void> _fetchDescription() async {
+    final desc = await _radioService.fetchDescription(widget.station.stationuuid);
+    if (mounted) {
+      setState(() {
+        _description = desc;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final from = extra?['from'] ?? '';
-    final isFromSearch = from == 'search';
-    final isFromHome = from == 'home';
-    final isSponsored = extra?['sponsored'] == true;
-
-    const stationName = 'Freq Radio';
-    const stationDescription =
-        'Streaming the best curated music, talk, and live shows 24/7. '
-        'Join our listeners worldwide and chat with other fans!';
-    const followers = 12800;
-    const listeners = 512;
-    const category = 'Music • Talk • Live';
-
-    String buttonLabel;
-    VoidCallback onPressedAction;
-    Color buttonColor;
-    Color foregroundColor;
-
-    if (isFromSearch) {
-      buttonLabel = 'Add';
-      onPressedAction = () => context.pop();
-      buttonColor = theme.colorScheme.primary;
-      foregroundColor = theme.colorScheme.onPrimary;
-    } else if (isFromHome && isSponsored) {
-      buttonLabel = 'Subscribe to Remove';
-      onPressedAction = () => context.push('/account');
-      buttonColor = theme.colorScheme.tertiary;
-      foregroundColor = theme.colorScheme.onTertiary;
-    } else {
-      buttonLabel = 'Remove';
-      onPressedAction = () => context.pop();
-      buttonColor = theme.colorScheme.error;
-      foregroundColor = theme.colorScheme.onError;
-    }
 
     return BlocBuilder<PlaybarBloc, PlaybarState>(
       builder: (context, state) {
-        final isPlaying = state is PlaybarPlaying && state.station == stationName;
+        final isPlaying =
+            state is PlaybarPlaying && state.station.stationuuid == widget.station.stationuuid;
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(stationName, style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
+            title: Text(widget.station.name,
+                style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
             backgroundColor: theme.colorScheme.primaryContainer,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
@@ -69,7 +63,7 @@ class DetailsPage extends StatelessWidget {
                   if (isPlaying) {
                     context.read<PlaybarBloc>().add(Pause());
                   } else {
-                    context.read<PlaybarBloc>().add(Play(stationName));
+                    context.read<PlaybarBloc>().add(Play(widget.station));
                   }
                 },
               )
@@ -81,7 +75,7 @@ class DetailsPage extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
-                  'https://picsum.photos/seed/${stationName.hashCode}/400/180',
+                  widget.station.favicon,
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -95,22 +89,30 @@ class DetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                stationName,
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                widget.station.name,
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                category,
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.secondary),
+                widget.station.tags.replaceAll(',', ' • '),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.secondary),
               ),
               const SizedBox(height: 16),
-              Text(stationDescription, style: theme.textTheme.bodyLarge),
+              if (_description == null)
+                const Center(child: CircularProgressIndicator())
+              else if (_description!.isNotEmpty)
+                Text(
+                  _description!,
+                  style: theme.textTheme.bodyLarge,
+                ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStat(context, Icons.people, '$followers followers'),
-                  _buildStat(context, Icons.headphones, '$listeners listening'),
+                  _buildStat(context, Icons.people, '${widget.station.votes} votes'),
+                  _buildStat(context, Icons.headphones, '${widget.station.clickcount} clicks'),
                 ],
               ),
               const SizedBox(height: 32),
@@ -126,18 +128,15 @@ class DetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: onPressedAction,
-                icon: Icon(
-                  isFromSearch
-                      ? Icons.add
-                      : isSponsored
-                          ? Icons.star
-                          : Icons.remove,
-                ),
-                label: Text(buttonLabel),
+                onPressed: () {
+                  context.read<SavedRadiosBloc>().add(RemoveRadio(widget.station));
+                  context.pop(); // Go back after removing
+                },
+                icon: const Icon(Icons.remove),
+                label: const Text('Remove from My Radios'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: buttonColor,
-                  foregroundColor: foregroundColor,
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
                   minimumSize: const Size.fromHeight(50),
                 ),
               ),

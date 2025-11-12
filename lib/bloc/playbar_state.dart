@@ -9,8 +9,10 @@ abstract class PlaybarState extends Equatable {
 
 class PlaybarInitial extends PlaybarState {}
 
+class PlaybarStopped extends PlaybarState {}
+
 class PlaybarPlaying extends PlaybarState {
-  final String station;
+  final Station station;
 
   const PlaybarPlaying(this.station);
 
@@ -19,7 +21,7 @@ class PlaybarPlaying extends PlaybarState {
 }
 
 class PlaybarPaused extends PlaybarState {
-  final String station;
+  final Station station;
 
   const PlaybarPaused(this.station);
 

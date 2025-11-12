@@ -8,7 +8,7 @@ abstract class PlaybarEvent extends Equatable {
 }
 
 class Play extends PlaybarEvent {
-  final String station;
+  final Station station;
 
   const Play(this.station);
 
@@ -17,3 +17,5 @@ class Play extends PlaybarEvent {
 }
 
 class Pause extends PlaybarEvent {}
+
+class Stop extends PlaybarEvent {}

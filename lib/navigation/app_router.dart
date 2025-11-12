@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../models/station.dart';
 import '../pages/add_url.dart';
 import '../pages/account.dart';
 import '../pages/search_details.dart';
@@ -32,12 +33,24 @@ final router = GoRouter(
         GoRoute(path: '/account', pageBuilder: (c, s) => _fadePage(const AccountPage(), s)),
         GoRoute(path: '/search', pageBuilder: (c, s) => _fadePage(const SearchPage(), s)),
         GoRoute(path: '/add-url', pageBuilder: (c, s) => _fadePage(const AddUrlPage(), s)),
-        GoRoute(path: '/search-details', pageBuilder: (c, s) => _fadePage(const SearchDetailsPage(), s)),
         GoRoute(
-          path: '/details',
+          path: '/search-details',
           pageBuilder: (c, s) {
-            final extra = s.extra is Map<String, dynamic> ? s.extra as Map<String, dynamic> : null;
-            return _fadePage(DetailsPage(extra: extra), s);
+            final station = s.extra as Station?;
+            if (station == null) {
+              return _fadePage(const Text('Error: Station not found'), s);
+            }
+            return _fadePage(SearchDetailsPage(station: station), s);
+          },
+        ),
+        GoRoute(
+          path: '/station-details',
+          pageBuilder: (c, s) {
+            final station = s.extra as Station?;
+            if (station == null) {
+              return _fadePage(const Text('Error: Station not found'), s);
+            }
+            return _fadePage(DetailsPage(station: station), s);
           },
         ),
         GoRoute(path: '/chat', pageBuilder: (c, s) => _fadePage(const ChatPage(), s)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/playbar_bloc.dart';
+import '../models/station.dart';
 
 class PlayerPage extends StatelessWidget {
   const PlayerPage({super.key});
@@ -12,6 +13,11 @@ class PlayerPage extends StatelessWidget {
     return BlocBuilder<PlaybarBloc, PlaybarState>(
       builder: (context, state) {
         if (state is! PlaybarPlaying && state is! PlaybarPaused) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.canPop()) {
+              context.pop();
+            }
+          });
           return const Scaffold();
         }
 
@@ -37,7 +43,7 @@ class PlayerPage extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   theme.colorScheme.primaryContainer,
-                  theme.colorScheme.background,
+                  theme.colorScheme.surface,
                 ],
                 stops: const [0.5, 1.0],
               ),
@@ -51,15 +57,24 @@ class PlayerPage extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
                     child: Image.network(
-                      'https://picsum.photos/seed/${station.hashCode}/400',
+                      station.favicon.isNotEmpty
+                          ? station.favicon
+                          : 'https://picsum.photos/seed/${station.name.hashCode}/400',
                       width: double.infinity,
                       height: 300,
                       fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: double.infinity,
+                        height: 300,
+                        color: Colors.grey.shade300,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.radio, size: 64, color: Colors.grey),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    station,
+                    station.name, // Use the name property
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

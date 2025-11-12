@@ -8,10 +8,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  geolocator: ^12.0.0
   flutter_bloc: ^8.1.5
   go_router: ^14.1.0   # For navigation
   equatable: ^2.0.5     # For value equality in Bloc states
   cupertino_icons: ^1.0.8
+  http: ^1.2.1
+  just_audio: ^0.9.36
+  audio_session: ^0.1.18
 
 dev_dependencies:
   flutter_test:

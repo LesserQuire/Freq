@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/playbar_bloc.dart';
+import '../models/station.dart';
 
 class Playbar extends StatelessWidget {
   const Playbar({super.key});
@@ -25,10 +26,13 @@ class Playbar extends StatelessWidget {
               color: theme.colorScheme.primaryContainer.withOpacity(0.95),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/${station.hashCode}/100'),
+                  backgroundImage: station.favicon.isNotEmpty
+                      ? NetworkImage(station.favicon)
+                      : null, // Using null will show the default background color
+                  child: station.favicon.isEmpty ? const Icon(Icons.radio) : null,
                 ),
                 title: Text(
-                  station,
+                  station.name, // Use the name property
                   style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
                   overflow: TextOverflow.ellipsis,
                 ),
