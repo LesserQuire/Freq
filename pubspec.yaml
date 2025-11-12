@@ -14,8 +14,8 @@ dependencies:
   equatable: ^2.0.5     # For value equality in Bloc states
   cupertino_icons: ^1.0.8
   http: ^1.2.1
-  just_audio: ^0.9.36
-  audio_session: ^0.1.18
+  just_audio: ^0.10.5
+  audio_session: ^0.2.2
 
 dev_dependencies:
   flutter_test:

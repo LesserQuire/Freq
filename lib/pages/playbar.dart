@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/playbar_bloc.dart';
-import '../models/station.dart';
 
 class Playbar extends StatelessWidget {
   const Playbar({super.key});
