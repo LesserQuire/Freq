@@ -8,20 +8,20 @@ import 'theme/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final audioService = AudioService();
-  await audioService.init();
-  runApp(FreqApp(audioService: audioService));
+  // Initialize the singleton audio service
+  await AudioService.instance.init();
+  runApp(const FreqApp());
 }
 
 class FreqApp extends StatelessWidget {
-  final AudioService audioService;
-  const FreqApp({super.key, required this.audioService});
+  const FreqApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => PlaybarBloc(audioService)),
+        // Provide the singleton instance to the BLoC
+        BlocProvider(create: (context) => PlaybarBloc(AudioService.instance)),
         BlocProvider(create: (context) => SavedRadiosBloc()),
       ],
       child: MaterialApp.router(

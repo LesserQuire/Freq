@@ -74,7 +74,7 @@ class PlayerPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    station.name, // Use the name property
+                    station.name,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

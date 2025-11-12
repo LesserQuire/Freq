@@ -11,6 +11,8 @@ class AudioService {
 
   Future<void> play(String url) async {
     try {
+      // Tell the system that we are about to start playing audio.
+      await AudioSession.instance.setActive(true);
       await _player.setUrl(url);
       _player.play();
     } catch (e) {
@@ -20,9 +22,12 @@ class AudioService {
 
   void stop() {
     _player.stop();
+    // Tell the system that we are done playing audio.
+    AudioSession.instance.setActive(false);
   }
 
   void dispose() {
     _player.dispose();
+    AudioSession.instance.setActive(false);
   }
 }

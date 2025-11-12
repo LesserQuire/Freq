@@ -19,6 +19,20 @@ class RadioService {
     }
   }
 
+  Future<List<Station>> fetchStationsByName(String name) async {
+    final uri = Uri.parse(
+        'https://de1.api.radio-browser.info/json/stations/byname/$name');
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> stationsJson = json.decode(response.body);
+      return stationsJson.map((json) => Station.fromJson(json)).toList();
+    } else {
+      print('Failed to load stations. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to load stations');
+    }
+  }
 
   Future<String> fetchDescription(String stationuuid) async {
     final uri = Uri.parse('http://de2.api.radio-browser.info/json/checks/$stationuuid');
