@@ -8,7 +8,7 @@
 PRODUCT_NAME = freq
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.freqTest
+PRODUCT_BUNDLE_IDENTIFIER = com.csen268.f25.g3
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.csen268.f25. All rights reserved.

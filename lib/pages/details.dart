@@ -118,7 +118,7 @@ class _DetailsPageState extends State<DetailsPage> {
               const SizedBox(height: 32),
               ElevatedButton.icon(
                 onPressed: () {
-                  context.read<SavedRadiosBloc>().add(RemoveRadio(widget.station));
+                  context.read<SavedRadiosBloc>().add(RemoveRadio(widget.station.stationuuid));
                   context.pop(); // Go back after removing
                 },
                 icon: const Icon(Icons.remove),

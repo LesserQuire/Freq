@@ -3,32 +3,30 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../services/auth_service.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _confirm = TextEditingController();
   String? _errorMessage;
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
-    _confirm.dispose();
     super.dispose();
   }
 
-  Future<void> _onSignup() async {
+  Future<void> _onLogin() async {
     if (_formKey.currentState!.validate()) {
       final authService = context.read<AuthService>();
-      final error = await authService.signUp(
+      final error = await authService.signIn(
         email: _email.text,
         password: _password.text,
       );
@@ -45,7 +43,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -79,29 +77,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              const Text('Confirm Password'),
-              TextFormField(
-                controller: _confirm,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm Password',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
-                  }
-                  if (value != _password.text) {
-                    return 'Passwords do not match';
+                    return 'Please enter your password';
                   }
                   return null;
                 },
@@ -116,16 +92,16 @@ class _SignupPageState extends State<SignupPage> {
               ],
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _onSignup,
+                onPressed: _onLogin,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
-                child: const Text('Sign Up'),
+                child: const Text('Login'),
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.go('/login'),
-                child: const Text('Already have an account? Login'),
+                onPressed: () => context.go('/signup'),
+                child: const Text('Don\'t have an account? Sign Up'),
               ),
             ],
           ),
