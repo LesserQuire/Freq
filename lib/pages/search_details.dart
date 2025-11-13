@@ -113,17 +113,6 @@ class _SearchDetailsPageState extends State<SearchDetailsPage> {
               ),
               const SizedBox(height: 32),
               ElevatedButton.icon(
-                onPressed: () => context.push('/chat'),
-                icon: const Icon(Icons.chat_bubble_outline),
-                label: const Text('Enter Chatroom'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  minimumSize: const Size.fromHeight(50),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
                 onPressed: () {
                   context.read<SavedRadiosBloc>().add(AddRadio(widget.station));
                   ScaffoldMessenger.of(context)

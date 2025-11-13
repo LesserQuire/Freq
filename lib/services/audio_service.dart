@@ -4,7 +4,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 
 class AudioService {
-  // Singleton instance
   static final AudioService instance = AudioService._internal();
 
   factory AudioService() {
@@ -27,7 +26,6 @@ class AudioService {
 
   Future<void> play(String url) async {
     try {
-      // Tell the system that we are about to start playing audio.
       final session = await AudioSession.instance;
       await session.setActive(true);
       await _player.setUrl(
@@ -45,7 +43,6 @@ class AudioService {
 
   Future<void> stop() async {
     await _player.stop();
-    // Tell the system that we are done playing audio.
     final session = await AudioSession.instance;
     await session.setActive(false);
   }
