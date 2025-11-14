@@ -28,11 +28,16 @@ class AudioService {
     try {
       final session = await AudioSession.instance;
       await session.setActive(true);
-      await _player.setUrl(
-        url,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
-        },
+      await _player.setAudioSource(
+        AudioSource.uri(
+          Uri.parse(url),
+          headers: {
+            'User-Agent':
+                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36'
+          },
+        ),
+        initialPosition: Duration.zero,
+        preload: true,
       );
       _player.play();
     } catch (e, s) {

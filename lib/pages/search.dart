@@ -41,7 +41,6 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> _fetchLocalRadios() async {
     setState(() {
       _isLoading = true;
-      _searchResults = [];
     });
 
     // Check permission status before requesting.
@@ -79,10 +78,14 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _searchByName(String name) async {
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
     setState(() {
       _isLoading = true;
-      _localRadios = [];
     });
     try {
       final List<Station> stations = await _radioService.fetchStationsByName(name);
@@ -154,34 +157,39 @@ class _SearchPageState extends State<SearchPage> {
                 ? const Center(child: CircularProgressIndicator())
                 : CustomScrollView(
                     slivers: [
-                      if (_localRadios.isNotEmpty)
+                      if (_searchResults.isNotEmpty) ...[
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text('Local Radios', style: theme.textTheme.titleLarge),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8.0),
+                            child: Text('Search Results',
+                                style: theme.textTheme.titleLarge),
                           ),
                         ),
-                      if (_localRadios.isNotEmpty)
                         SliverList(
                           delegate: SliverChildBuilderDelegate(
-                            (context, index) => _buildStationTile(_localRadios[index]),
-                            childCount: _localRadios.length,
-                          ),
-                        ),
-                      if (_searchResults.isNotEmpty)
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                            child: Text('Search Results', style: theme.textTheme.titleLarge),
-                          ),
-                        ),
-                      if (_searchResults.isNotEmpty)
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) => _buildStationTile(_searchResults[index]),
+                            (context, index) =>
+                                _buildStationTile(_searchResults[index]),
                             childCount: _searchResults.length,
                           ),
                         ),
+                      ] else if (_localRadios.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Text('Local Radios',
+                                style: theme.textTheme.titleLarge),
+                          ),
+                        ),
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) =>
+                                _buildStationTile(_localRadios[index]),
+                            childCount: _localRadios.length,
+                          ),
+                        ),
+                      ]
                     ],
                   ),
           ),
