@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/playbar_bloc.dart';
 import '../bloc/saved_radios_bloc.dart';
+import '../models/station.dart';
+import '../services/radio_service.dart';
 
 class HomePage extends StatefulWidget {
   final bool isPremium;
@@ -13,9 +15,53 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final RadioService _radioService = RadioService();
+  List<Station> _sponsoredStations = [];
+  bool _isLoadingSponsored = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSponsoredStations();
+  }
+
+  Future<void> _fetchSponsoredStations() async {
+    if (widget.isPremium) return; // Don't fetch if user is premium
+
+    setState(() {
+      _isLoadingSponsored = true;
+    });
+
+    try {
+      final results = await Future.wait([
+        _radioService.fetchStationsByName('DKFM'),
+        _radioService.fetchStationsByName('J-pop powerplay kawaii'),
+        _radioService.fetchStationsByName('jazz sakura'),
+      ]);
+
+      final stations = <Station>[];
+      if (results[0].isNotEmpty) stations.add(results[0].first);
+      if (results[1].isNotEmpty) stations.add(results[1].first);
+      if (results[2].isNotEmpty) stations.add(results[2].first);
+
+      if (mounted) {
+        setState(() {
+          _sponsoredStations = stations;
+        });
+      }
+    } catch (e) {
+      print("Failed to load sponsored stations: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingSponsored = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final sponsored = List.generate(3, (i) => 'Sponsored ${i + 1}');
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -47,23 +93,31 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text('Sponsored', style: theme.textTheme.titleLarge),
                     ),
-                    ...List.generate(sponsored.length, (i) {
-                      final stationName = sponsored[i];
-                      final isPlaying = playbarState is PlaybarPlaying && playbarState.station.name == stationName;
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage('https://picsum.photos/seed/${stationName.hashCode}/100'),
-                        ),
-                        title: Text(stationName, style: theme.textTheme.titleMedium),
-                        selected: isPlaying,
-                        selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
-                        onTap: () {
-                          if (isPlaying) {
-                            context.read<PlaybarBloc>().add(Pause());
-                          }
-                        },
-                      );
-                    }),
+                    if (_isLoadingSponsored)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      ..._sponsoredStations.map((station) {
+                        final isPlaying = playbarState is PlaybarPlaying && playbarState.station == station;
+                        return ListTile(
+                          key: Key(station.stationuuid),
+                          leading: CircleAvatar(
+                            backgroundImage: station.favicon.isNotEmpty
+                                ? NetworkImage(station.favicon)
+                                : null,
+                            child: station.favicon.isEmpty ? const Icon(Icons.radio) : null,
+                          ),
+                          title: Text(station.name, style: theme.textTheme.titleMedium),
+                          selected: isPlaying,
+                          selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                          onTap: () {
+                            if (isPlaying) {
+                              context.read<PlaybarBloc>().add(Pause());
+                            } else {
+                              context.read<PlaybarBloc>().add(Play(station));
+                            }
+                          },
+                        );
+                      }),
                     const SizedBox(height: 20),
                   ],
                   Padding(
