@@ -48,12 +48,18 @@ class FreqApp extends StatelessWidget {
             ),
           ),
         ],
-        child: MaterialApp.router(
-          title: 'Freq',
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          routerConfig: AppRouter.router,
-          debugShowCheckedModeBanner: false,
+        child: Builder( // Use Builder to get a context that has access to the MultiRepositoryProvider
+          builder: (context) {
+            final authService = context.read<AuthService>();
+            final appRouter = AppRouter(authService); // Instantiate AppRouter with AuthService
+            return MaterialApp.router(
+              title: 'Freq',
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              routerConfig: appRouter.router, // Use the instance's router
+              debugShowCheckedModeBanner: false,
+            );
+          },
         ),
       ),
     );

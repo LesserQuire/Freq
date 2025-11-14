@@ -43,7 +43,6 @@ class _LoginPageState extends State<LoginPage> {
           _errorMessage = error; // Set error message if any
         });
       }
-      // On success, the auth state stream will trigger a navigation change in the router.
     }
   }
 

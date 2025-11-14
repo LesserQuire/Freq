@@ -14,10 +14,17 @@ import '../pages/signup.dart';
 import '../pages/playbar.dart';
 import '../pages/player_page.dart';
 import '../pages/splash_page.dart';
+import '../services/auth_service.dart'; // Import AuthService
+import 'go_router_refresh_stream.dart'; // Import the refresh stream adapter
 
 class AppRouter {
-  static final router = GoRouter(
+  final AuthService _authService;
+
+  AppRouter(this._authService);
+
+  GoRouter get router => GoRouter(
     initialLocation: '/splash',
+    refreshListenable: GoRouterRefreshStream(_authService.authStateChanges), // Use authStateChanges
     routes: [
       GoRoute(path: '/splash', pageBuilder: (c, s) => _fadePage(const SplashPage(), s)),
       GoRoute(path: '/login', pageBuilder: (c, s) => _fadePage(const LoginPage(), s)),
@@ -62,7 +69,7 @@ class AppRouter {
       ),
     ],
     redirect: (context, state) {
-      final user = FirebaseAuth.instance.currentUser;
+      final user = _authService.currentUser; // Use _authService.currentUser
       final loggingIn = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
       final splashing = state.matchedLocation == '/splash';
 
