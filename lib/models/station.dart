@@ -26,7 +26,7 @@ class Station extends Equatable {
     return Station(
       stationuuid: json['stationuuid'] as String? ?? '',
       name: json['name'] as String? ?? 'Unknown Station',
-      url: json['url_resolved'] as String? ?? json['url'] as String? ?? '',
+      url: json['url'] as String? ?? '',
       favicon: json['favicon'] as String? ?? '',
       tags: json['tags'] as String? ?? 'N/A',
       votes: json['votes'] as int? ?? 0,

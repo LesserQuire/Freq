@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   String? _errorMessage;
+  bool _isLoading = false; // Added loading state
 
   @override
   void dispose() {
@@ -25,15 +26,21 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _onLogin() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true; // Set loading to true
+        _errorMessage = null; // Clear previous errors
+      });
+
       final authService = context.read<AuthService>();
       final error = await authService.signIn(
         email: _email.text,
         password: _password.text,
       );
 
-      if (mounted && error != null) {
+      if (mounted) {
         setState(() {
-          _errorMessage = error;
+          _isLoading = false; // Set loading to false
+          _errorMessage = error; // Set error message if any
         });
       }
       // On success, the auth state stream will trigger a navigation change in the router.
@@ -54,6 +61,7 @@ class _LoginPageState extends State<LoginPage> {
               const Text('Email'),
               TextFormField(
                 controller: _email,
+                enabled: !_isLoading, // Disable when loading
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'Email',
@@ -70,6 +78,7 @@ class _LoginPageState extends State<LoginPage> {
               const Text('Password'),
               TextFormField(
                 controller: _password,
+                enabled: !_isLoading, // Disable when loading
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Password',
@@ -92,15 +101,17 @@ class _LoginPageState extends State<LoginPage> {
               ],
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _onLogin,
+                onPressed: _isLoading ? null : _onLogin, // Disable button when loading
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
-                child: const Text('Login'),
+                child: _isLoading // Show loading indicator if loading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Login'),
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.go('/signup'),
+                onPressed: _isLoading ? null : () => context.go('/signup'), // Disable when loading
                 child: const Text('Don\'t have an account? Sign Up'),
               ),
             ],
