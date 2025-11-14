@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuthException
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -16,6 +17,7 @@ class _SignupPageState extends State<SignupPage> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   String? _errorMessage;
+  bool _isLoading = false; // Added loading state
 
   @override
   void dispose() {
@@ -27,18 +29,39 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> _onSignup() async {
     if (_formKey.currentState!.validate()) {
-      final authService = context.read<AuthService>();
-      final error = await authService.signUp(
-        email: _email.text,
-        password: _password.text,
-      );
+      setState(() {
+        _isLoading = true; // Set loading to true
+        _errorMessage = null; // Clear previous errors
+      });
 
-      if (mounted && error != null) {
+      final authService = context.read<AuthService>();
+      String? error;
+      try {
+        await authService.signUp(
+          email: _email.text,
+          password: _password.text,
+        );
+      } on FirebaseAuthException catch (e) {
+        error = e.code; // Get the error code
+      } catch (e) {
+        error = e.toString(); // Catch other potential errors
+      }
+
+
+      if (mounted) {
         setState(() {
-          _errorMessage = error;
+          _isLoading = false; // Set loading to false
+          if (error == null) {
+            // If signup is successful, navigate to home
+            context.go('/home?premium=false');
+          } else if (error == 'email-already-in-use') {
+            // If account already exists, redirect to login page
+            context.go('/login');
+          } else {
+            _errorMessage = error; // Display other errors
+          }
         });
       }
-      // On success, the auth state stream will trigger a navigation change in the router.
     }
   }
 
@@ -56,6 +79,7 @@ class _SignupPageState extends State<SignupPage> {
               const Text('Email'),
               TextFormField(
                 controller: _email,
+                enabled: !_isLoading, // Disable when loading
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'Email',
@@ -72,6 +96,7 @@ class _SignupPageState extends State<SignupPage> {
               const Text('Password'),
               TextFormField(
                 controller: _password,
+                enabled: !_isLoading, // Disable when loading
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Password',
@@ -91,6 +116,7 @@ class _SignupPageState extends State<SignupPage> {
               const Text('Confirm Password'),
               TextFormField(
                 controller: _confirm,
+                enabled: !_isLoading, // Disable when loading
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Confirm Password',
@@ -116,15 +142,17 @@ class _SignupPageState extends State<SignupPage> {
               ],
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _onSignup,
+                onPressed: _isLoading ? null : _onSignup, // Disable button when loading
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size.fromHeight(50),
                 ),
-                child: const Text('Sign Up'),
+                child: _isLoading // Show loading indicator if loading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Sign Up'),
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.go('/login'),
+                onPressed: _isLoading ? null : () => context.go('/login'), // Disable when loading
                 child: const Text('Already have an account? Login'),
               ),
             ],
