@@ -119,7 +119,7 @@ class _DetailsPageState extends State<DetailsPage> {
               ElevatedButton.icon(
                 onPressed: () {
                   context.read<SavedRadiosBloc>().add(RemoveRadio(widget.station.stationuuid));
-                  context.pop(); // Go back after removing
+                  context.pop();
                 },
                 icon: const Icon(Icons.remove),
                 label: const Text('Remove from My Radios'),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+import 'package:geolocator/geolocator.dart';
 import '../bloc/playbar_bloc.dart';
 import '../models/station.dart';
 import '../services/location_service.dart';
@@ -17,6 +19,7 @@ class _SearchPageState extends State<SearchPage> {
   final LocationService _locationService = LocationService();
   final RadioService _radioService = RadioService();
   final _textController = TextEditingController();
+  final FirebaseInAppMessaging _fiam = FirebaseInAppMessaging.instance;
 
   bool _gpsEnabled = false;
   List<Station> _localRadios = [];
@@ -38,8 +41,17 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> _fetchLocalRadios() async {
     setState(() {
       _isLoading = true;
-      _searchResults = []; // Clear search results when fetching local
+      _searchResults = [];
     });
+
+    // Check permission status before requesting.
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      print("Triggering FIAM event: location_rationale");
+      _fiam.triggerEvent('location_rationale');
+      await Future.delayed(const Duration(milliseconds: 1500));
+    }
+
     try {
       final position = await _locationService.determinePosition();
       final List<Station> stations = await _radioService.fetchStationsByLocation(
@@ -70,7 +82,7 @@ class _SearchPageState extends State<SearchPage> {
     if (name.isEmpty) return;
     setState(() {
       _isLoading = true;
-      _localRadios = []; // Clear local radios when searching
+      _localRadios = [];
     });
     try {
       final List<Station> stations = await _radioService.fetchStationsByName(name);

@@ -27,11 +27,11 @@ class Playbar extends StatelessWidget {
                 leading: CircleAvatar(
                   backgroundImage: station.favicon.isNotEmpty
                       ? NetworkImage(station.favicon)
-                      : null, // Using null will show the default background color
+                      : null,
                   child: station.favicon.isEmpty ? const Icon(Icons.radio) : null,
                 ),
                 title: Text(
-                  station.name, // Use the name property
+                  station.name,
                   style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
                   overflow: TextOverflow.ellipsis,
                 ),

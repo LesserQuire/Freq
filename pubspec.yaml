@@ -10,7 +10,7 @@ dependencies:
     sdk: flutter
   geolocator: ^12.0.0
   flutter_bloc: ^8.1.5
-  go_router: ^14.1.0   # For navigation
+  go_router: ^14.1.0
   cupertino_icons: ^1.0.8
   http: ^1.2.1
   just_audio: ^0.10.5

@@ -58,7 +58,6 @@ class _HomePageState extends State<HomePage> {
                         selected: isPlaying,
                         selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
                         onTap: () {
-                          // Placeholder: Cannot play sponsored stations.
                           if (isPlaying) {
                             context.read<PlaybarBloc>().add(Pause());
                           }

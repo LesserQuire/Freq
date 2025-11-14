@@ -6,7 +6,6 @@ import '../models/station.dart';
 import '../services/station_service.dart';
 import '../services/auth_service.dart';
 
-// --- Events ---
 abstract class SavedRadiosEvent extends Equatable {
   const SavedRadiosEvent();
   @override
@@ -32,13 +31,12 @@ class AddRadio extends SavedRadiosEvent {
 }
 
 class RemoveRadio extends SavedRadiosEvent {
-  final String stationuuid; // Use stationuuid for removal
+  final String stationuuid;
   const RemoveRadio(this.stationuuid);
   @override
   List<Object> get props => [stationuuid];
 }
 
-// --- State ---
 class SavedRadiosState extends Equatable {
   final List<Station> stations;
   final bool isLoading;
@@ -66,7 +64,6 @@ class SavedRadiosState extends Equatable {
   List<Object?> get props => [stations, isLoading, error];
 }
 
-// --- Bloc ---
 class SavedRadiosBloc extends Bloc<SavedRadiosEvent, SavedRadiosState> {
   final StationService _stationService;
   final AuthService _authService;
@@ -81,14 +78,12 @@ class SavedRadiosBloc extends Bloc<SavedRadiosEvent, SavedRadiosState> {
 
     _authStateSubscription = _authService.authStateChanges.listen((user) {
       if (user != null) {
-        // User logged in, start listening to saved stations
-        _savedStationsSubscription?.cancel(); // Cancel previous subscription if any
+        _savedStationsSubscription?.cancel();
         _savedStationsSubscription = _stationService.getSavedStations().listen(
               (stations) => add(UpdateSavedRadios(stations)),
               onError: (e) => emit(state.copyWith(error: e.toString())),
             );
       } else {
-        // User logged out, clear stations and cancel subscription
         _savedStationsSubscription?.cancel();
         emit(const SavedRadiosState(stations: []));
       }
@@ -97,8 +92,6 @@ class SavedRadiosBloc extends Bloc<SavedRadiosEvent, SavedRadiosState> {
 
   Future<void> _onLoadSavedRadios(LoadSavedRadios event, Emitter<SavedRadiosState> emit) async {
     emit(state.copyWith(isLoading: true, error: null));
-    // The actual loading is handled by the stream listener in the constructor
-    // This event might be used to re-trigger a refresh if needed
   }
 
   void _onUpdateSavedRadios(UpdateSavedRadios event, Emitter<SavedRadiosState> emit) {
@@ -108,7 +101,6 @@ class SavedRadiosBloc extends Bloc<SavedRadiosEvent, SavedRadiosState> {
   Future<void> _onAddRadio(AddRadio event, Emitter<SavedRadiosState> emit) async {
     try {
       await _stationService.addStation(event.station);
-      // State will be updated via the stream subscription
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -117,7 +109,6 @@ class SavedRadiosBloc extends Bloc<SavedRadiosEvent, SavedRadiosState> {
   Future<void> _onRemoveRadio(RemoveRadio event, Emitter<SavedRadiosState> emit) async {
     try {
       await _stationService.removeStation(event.stationuuid);
-      // State will be updated via the stream subscription
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
