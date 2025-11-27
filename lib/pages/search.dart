@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -210,7 +212,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       title: Text(station.name, style: Theme.of(context).textTheme.titleMedium),
       selected: isPlaying,
-      selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+      selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withAlpha((0.5 * 255).round()),
       trailing: IconButton(
         icon: const Icon(Icons.info_outline),
         onPressed: () => context.push('/search-details', extra: station),

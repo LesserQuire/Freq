@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -108,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           title: Text(station.name, style: theme.textTheme.titleMedium),
                           selected: isPlaying,
-                          selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                          selectedTileColor: theme.colorScheme.primaryContainer.withAlpha((0.5 * 255).round()),
                           onTap: () {
                             if (isPlaying) {
                               context.read<PlaybarBloc>().add(Pause());
@@ -139,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         title: Text(station.name, style: theme.textTheme.titleMedium),
                         selected: isPlaying,
-                        selectedTileColor: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                        selectedTileColor: theme.colorScheme.primaryContainer.withAlpha((0.5 * 255).round()),
                         trailing: IconButton(
                           icon: const Icon(Icons.info_outline),
                           onPressed: () => context.push('/station-details', extra: station),

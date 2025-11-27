@@ -22,7 +22,7 @@ class Playbar extends StatelessWidget {
             onTap: () => context.push('/player'),
             child: Container(
               height: 60,
-              color: theme.colorScheme.primaryContainer.withOpacity(0.95),
+              color: theme.colorScheme.primaryContainer.withAlpha((0.95 * 255).round()),
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundImage: station.favicon.isNotEmpty
