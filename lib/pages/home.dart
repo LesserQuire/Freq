@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchSponsoredStations() async {
-    if (widget.isPremium) return; // Don't fetch if user is premium
+    if (widget.isPremium) return;
 
     setState(() {
       _isLoadingSponsored = true;

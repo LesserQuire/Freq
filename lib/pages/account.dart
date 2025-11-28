@@ -38,7 +38,6 @@ class _AccountPageState extends State<AccountPage> {
         context.go('/login');
       }
     } catch (e) {
-      // Handle error, e.g., show a SnackBar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error signing out: \$e')),
@@ -68,9 +67,9 @@ class _AccountPageState extends State<AccountPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.upgrade),
+            icon: const Icon(Icons.star),
             onPressed: () {
-              context.push('/home?premium=true'); // Navigate to premium page
+              context.push('/home?premium=true');
             },
             color: theme.colorScheme.onPrimaryContainer,
             tooltip: 'Upgrade to Freq+',
@@ -93,7 +92,7 @@ class _AccountPageState extends State<AccountPage> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _onSignOut,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.error, // Use error color for logout
+                  backgroundColor: theme.colorScheme.error,
                   foregroundColor: theme.colorScheme.onError,
                 ),
                 child: _isLoading
