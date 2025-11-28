@@ -23,6 +23,7 @@ dependencies:
   equatable: ^2.0.7
   bloc: ^8.1.4
   firebase_core: ^4.2.1
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -42,3 +43,11 @@ flutter:
     - assets/images/splash7.png
     - assets/images/splash8.png
     - assets/images/splash9.png
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/icon_foreground.png"
+  
